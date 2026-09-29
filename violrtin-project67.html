@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Belarus 67</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Arial Black', 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(90deg, #111 50%, #ff6a00 50%);
+    color: #fff;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  .f67 {
+    position: fixed;
+    top: -60px;
+    font-size: 36px;
+    font-weight: 900;
+    color: #ff6a00;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+    animation: fall linear infinite;
+  }
+  .f67.r { color: #111; opacity: 0.5; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+
+  header {
+    text-align: center;
+    padding: 30px 15px 15px;
+    position: relative;
+    z-index: 2;
+  }
+  h1 {
+    font-size: 52px;
+    letter-spacing: 6px;
+    color: #fff;
+    text-shadow: 4px 4px 0 #ff6a00, -2px -2px 0 #111, 2px 2px 0 #111;
+    animation: pulse 2.5s infinite;
+  }
+  @keyframes pulse { 50% { transform: scale(1.05); } }
+  header p {
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: #fff;
+    margin-top: 8px;
+    font-weight: 800;
+  }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(17,17,17,0.95);
+    border-bottom: 3px solid #ff6a00;
+  }
+  .tab {
+    padding: 10px 22px;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border: 3px solid #ff6a00;
+    background: #111;
+    color: #ff6a00;
+    border-radius: 40px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.3s;
+  }
+  .tab:hover { transform: scale(1.1) rotate(-3deg); background: #ff6a00; color: #111; }
+  .tab.on { background: #ff6a00; color: #111; }
+
+  main {
+    max-width: 850px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+    position: relative;
+    z-index: 2;
+  }
+  .p { display: none; animation: in 0.4s; }
+  .p.on { display: block; }
+  @keyframes in {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  h2 {
+    font-size: 26px;
+    color: #fff;
+    margin-bottom: 16px;
+    text-shadow: 3px 3px 0 #111, 4px 4px 0 #ff6a00;
+    letter-spacing: 1px;
+  }
+
+  .card {
+    background: #fff;
+    color: #111;
+    border: 4px solid #111;
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 14px;
+    box-shadow: 8px 8px 0 #ff6a00;
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+  .card:hover { transform: translate(-3px, -3px); box-shadow: 11px 11px 0 #111; }
+  .card h3 { font-size: 18px; margin-bottom: 8px; color: #ff6a00; letter-spacing: 1px; }
+  .card p { font-size: 15px; color: #333; font-family: 'Segoe UI', sans-serif; line-height: 1.6; }
+
+  .row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-top: 14px;
+  }
+  .mini {
+    background: #fff;
+    color: #111;
+    border: 4px solid #111;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 6px 6px 0 #ff6a00;
+    transition: transform 0.25s;
+  }
+  .mini:hover { transform: translate(-2px, -2px) rotate(-1deg); }
+  .mini b { font-size: 16px; color: #ff6a00; display: block; margin-bottom: 6px; letter-spacing: 1px; }
+  .mini span { font-family: 'Segoe UI', sans-serif; font-size: 14px; color: #333; }
+
+  /* Game */
+  .arena {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    background: #fff;
+    border: 4px solid #111;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 10px 10px 0 #ff6a00;
+  }
+  .arena::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, #f5f5f5 50%, #fff2e6 50%);
+  }
+  .catch {
+    position: absolute;
+    padding: 14px 24px;
+    font-size: 18px;
+    font-family: 'Arial Black', sans-serif;
+    letter-spacing: 2px;
+    background: #ff6a00;
+    color: #111;
+    border: 4px solid #111;
+    border-radius: 50px;
+    cursor: pointer;
+    z-index: 5;
+    box-shadow: 0 5px 0 #111;
+    transition: left 0.25s ease, top 0.25s ease, transform 0.2s;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .catch:hover { background: #ff8c33; }
+  .catch:active { transform: translateY(3px); box-shadow: 0 2px 0 #111; }
+
+  .catch.run {
+    animation: shake 0.3s infinite;
+  }
+  @keyframes shake {
+    0%, 100% { transform: rotate(-3deg); }
+    50% { transform: rotate(3deg); }
+  }
+
+  .speech {
+    position: absolute;
+    background: #111;
+    color: #ff6a00;
+    border: 3px solid #ff6a00;
+    border-radius: 14px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: 700;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 0.3s, transform 0.3s;
+    white-space: nowrap;
+    max-width: 260px;
+    text-align: center;
+  }
+  .speech::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #ff6a00;
+  }
+  .speech.show { opacity: 1; transform: translateY(0); }
+
+  .timer-bar {
+    width: 100%;
+    height: 14px;
+    background: #111;
+    border: 3px solid #ff6a00;
+    border-radius: 10px;
+    margin-top: 14px;
+    overflow: hidden;
+    box-shadow: 4px 4px 0 #ff6a00;
+  }
+  .timer-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #ff6a00, #ff8c33);
+    transition: width 1s linear;
+  }
+  .timer-fill.danger {
+    background: #ff2222;
+    animation: dangerPulse 0.5s infinite;
+  }
+  @keyframes dangerPulse { 50% { opacity: 0.6; } }
+
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    background: #111;
+    color: #ff6a00;
+    border: 3px solid #ff6a00;
+    border-radius: 40px;
+    padding: 10px 22px;
+    font-size: 15px;
+    letter-spacing: 2px;
+  }
+  .stat span { color: #fff; }
+
+  .msg {
+    text-align: center;
+    margin-top: 14px;
+    background: #fff;
+    color: #111;
+    border: 4px solid #ff6a00;
+    border-radius: 16px;
+    padding: 14px;
+    font-size: 16px;
+    letter-spacing: 1px;
+    min-height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: 700;
+  }
+  .msg.win { background: #ff6a00; animation: pulse 0.5s infinite; }
+  .msg.lose { background: #111; color: #ff6a00; }
+
+  .reset {
+    display: block;
+    margin: 16px auto 0;
+    padding: 12px 30px;
+    background: #111;
+    color: #ff6a00;
+    border: 3px solid #ff6a00;
+    border-radius: 40px;
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 900;
+    letter-spacing: 2px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.3s;
+  }
+  .reset:hover { background: #ff6a00; color: #111; transform: scale(1.06); }
+
+  .q {
+    background: #fff;
+    color: #111;
+    border: 4px solid #111;
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 12px;
+    box-shadow: 6px 6px 0 #ff6a00;
+  }
+  .q h4 { font-size: 16px; margin-bottom: 12px; letter-spacing: 0.5px; }
+  .opt {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 16px;
+    margin-bottom: 6px;
+    background: #f5f5f5;
+    border: 3px solid #111;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: 700;
+    color: #111;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .opt:hover { background: #ff6a00; transform: translateX(5px); }
+  .opt.ok { background: #ff6a00; color: #111; }
+  .opt.no { background: #ffcdd2; color: #b71c1c; border-color: #c62828; }
+
+  .result {
+    display: none;
+    text-align: center;
+    background: #ff6a00;
+    color: #111;
+    border: 4px solid #111;
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 16px;
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+  .result.on { display: block; animation: pulse 0.6s; }
+
+  footer {
+    text-align: center;
+    padding: 20px;
+    color: #fff;
+    font-size: 12px;
+    letter-spacing: 3px;
+    position: relative;
+    z-index: 2;
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 38px; letter-spacing: 3px; }
+    .tab { padding: 8px 14px; font-size: 11px; }
+    .arena { height: 340px; }
+    .catch { font-size: 14px; padding: 10px 18px; }
+    h2 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>BELARUS</h1>
+  <p>ORANGE &amp; BLACK — 67</p>
+</header>
+
+<nav>
+  <button class="tab on" data-p="home">Home</button>
+  <button class="tab" data-p="facts">Facts</button>
+  <button class="tab" data-p="game">Catch 67</button>
+  <button class="tab" data-p="quiz">Quiz</button>
+</nav>
+
+<main>
+
+  <section class="p on" id="home">
+    <h2>WELCOME</h2>
+    <div class="card">
+      <h3>BELARUS</h3>
+      <p>A country in Eastern Europe. Capital — Minsk. Famous for forests, castles and draniki (potato pancakes).</p>
+    </div>
+    <div class="row">
+      <div class="mini">
+        <b>POPULATION</b>
+        <span>About 9 million people</span>
+      </div>
+      <div class="mini">
+        <b>AREA</b>
+        <span>207,600 km²</span>
+      </div>
+      <div class="mini">
+        <b>LANGUAGE</b>
+        <span>Belarusian &amp; Russian</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="p" id="facts">
+    <h2>FACTS</h2>
+    <div class="card">
+      <h3>NATIONAL ANIMAL</h3>
+      <p>The European bison (zubr). Lives in Belovezhskaya Pushcha.</p>
+    </div>
+    <div class="card">
+      <h3>DRANIKI</h3>
+      <p>Potato pancakes — the most famous Belarusian dish. Served with sour cream.</p>
+    </div>
+    <div class="card">
+      <h3>MIR CASTLE</h3>
+      <p>A 16th-century castle. UNESCO World Heritage Site.</p>
+    </div>
+    <div class="card">
+      <h3>FLAG</h3>
+      <p>Red top, green bottom, white-red ornament on the left.</p>
+    </div>
+  </section>
+
+  <section class="p" id="game">
+    <h2>CATCH THE 67 — 20 SECONDS!</h2>
+    <div class="arena" id="arena">
+      <button class="catch" id="catch">67</button>
+      <div class="speech" id="speech"></div>
+    </div>
+    <div class="timer-bar">
+      <div class="timer-fill" id="timerFill"></div>
+    </div>
+    <div class="stats">
+      <div class="stat">CAUGHT: <span id="sc">0</span>/10</div>
+      <div class="stat">TIME: <span id="tm">20</span>s</div>
+    </div>
+    <div class="msg" id="msg">Catch the 67 TEN times in 20 seconds!</div>
+    <button class="reset" id="rst">Play Again</button>
+  </section>
+
+  <section class="p" id="quiz">
+    <h2>QUIZ</h2>
+    <div id="qz"></div>
+    <div class="result" id="rz"></div>
+  </section>
+
+</main>
+
+<footer>BELARUS 67</footer>
+
+<script>
+/* Падающие 67 */
+for (let i = 0; i < 14; i++) {
+  const el = document.createElement('div');
+  el.className = 'f67' + (Math.random() > 0.5 ? ' r' : '');
+  el.textContent = '67';
+  el.style.left = Math.random() * 100 + 'vw';
+  el.style.animationDuration = (10 + Math.random() * 10) + 's';
+  el.style.animationDelay = (Math.random() * 15) + 's';
+  el.style.fontSize = (24 + Math.random() * 30) + 'px';
+  document.body.appendChild(el);
+}
+
+/* Tabs */
+const tabs = document.querySelectorAll('.tab');
+const pages = document.querySelectorAll('.p');
+tabs.forEach(t => {
+  t.onclick = () => {
+    tabs.forEach(x => x.classList.remove('on'));
+    pages.forEach(x => x.classList.remove('on'));
+    t.classList.add('on');
+    document.getElementById(t.dataset.p).classList.add('on');
+    if (t.dataset.p === 'game') startGame();
+  };
+});
+
+/* ===== GAME ===== */
+const arena = document.getElementById('arena');
+const catchBtn = document.getElementById('catch');
+const sc = document.getElementById('sc');
+const tm = document.getElementById('tm');
+const msg = document.getElementById('msg');
+const timerFill = document.getElementById('timerFill');
+const speech = document.getElementById('speech');
+
+let pts = 0, timeLeft = 20, tid = null, live = false;
+const MAX_TIME = 20;
+const TARGET = 10;
+
+const catchSay = [
+  "Oy! Hvatit!",
+  "Uydi, boloto!",
+  "Ne tykay menya!",
+  "Ay! Bolno zhe!",
+  "Ti chego, tormoz?",
+  "Ya 67, a ty kto?",
+  "Ostav menya v pokoe!",
+  "Ne lovi menya!",
+  "Hvatit! Ya ustal!",
+  "Eshe raz — i ya uydu!"
+];
+
+const dodgeSay = [
+  "Ne popal!",
+  "Ha-ha!",
+  "Mimo!",
+  "Tormoz!",
+  "Ti medlenniy!",
+  "Davay bystree!",
+  "Ne doberesh menya!"
+];
+
+const winSay = [
+  "Ladno, ti poymal menya, boloto!"
+];
+
+const loseSay = [
+  "Ha! Ti proigral, boloto!",
+  "Slishkom medlenno, tormoz!",
+  "Ya ostayus! Ti ne spravilsya!",
+  "Nolik tebe, a ne 67!"
+];
+
+function showSpeech(text) {
+  speech.textContent = text;
+  speech.classList.add('show');
+  clearTimeout(speech._t);
+  speech._t = setTimeout(() => speech.classList.remove('show'), 1500);
+}
+
+function positionSpeech() {
+  const a = arena.getBoundingClientRect();
+  const b = catchBtn.getBoundingClientRect();
+  const x = b.left - a.left + b.width / 2;
+  const y = b.top - a.top - 42;
+  speech.style.left = Math.max(6, x - 130) + 'px';
+  speech.style.top = Math.max(6, y) + 'px';
+}
+
+function move() {
+  const a = arena.getBoundingClientRect();
+  const b = catchBtn.getBoundingClientRect();
+  const x = Math.random() * (a.width - b.width - 10);
+  const y = Math.random() * (a.height - b.height - 10);
+  catchBtn.style.left = x + 'px';
+  catchBtn.style.top = y + 'px';
+  positionSpeech();
+}
+
+function startGame() {
+  pts = 0;
+  timeLeft = MAX_TIME;
+  live = true;
+  sc.textContent = '0';
+  tm.textContent = MAX_TIME;
+  timerFill.style.width = '100%';
+  timerFill.classList.remove('danger');
+  msg.textContent = 'Catch the 67 TEN times in 20 seconds!';
+  msg.classList.remove('win', 'lose');
+  catchBtn.style.display = 'block';
+  catchBtn.classList.remove('run');
+  catchBtn.textContent = '67';
+  speech.classList.remove('show');
+  move();
+  clearInterval(tid);
+  tid = setInterval(() => {
+    if (!live) return;
+    timeLeft--;
+    tm.textContent = timeLeft;
+    timerFill.style.width = (timeLeft / MAX_TIME * 100) + '%';
+    if (timeLeft <= 5) timerFill.classList.add('danger');
+    if (timeLeft <= 0) endGame(false);
+  }, 1000);
+}
+
+function endGame(win) {
+  live = false;
+  clearInterval(tid);
+  catchBtn.classList.remove('run');
+  const phrase = win
+    ? winSay[Math.floor(Math.random() * winSay.length)]
+    : loseSay[Math.floor(Math.random() * loseSay.length)];
+
+  if (win) {
+    catchBtn.textContent = 'SDALSA!';
+    msg.classList.add('win');
+    msg.classList.remove('lose');
+    msg.innerHTML = 'WIN! 10/10 in ' + (MAX_TIME - timeLeft) + 's<br>' + phrase;
+  } else {
+    catchBtn.textContent = '67 ESCAPED';
+    catchBtn.classList.add('run');
+    msg.classList.add('lose');
+    msg.classList.remove('win');
+    msg.innerHTML = 'LOSE! Only ' + pts + '/10 caught<br>' + phrase;
+  }
+  showSpeech(phrase);
+  positionSpeech();
+}
+
+catchBtn.onclick = () => {
+  if (!live) return;
+  pts++;
+  sc.textContent = pts;
+
+  if (pts >= TARGET) {
+    endGame(true);
+    return;
+  }
+
+  const say = catchSay[Math.floor(Math.random() * catchSay.length)];
+  showSpeech(say);
+
+  move();
+
+  if (Math.random() > 0.5) {
+    setTimeout(() => { if (live) move(); }, 100);
+  }
+};
+
+catchBtn.onmouseenter = () => {
+  if (live && pts < TARGET) {
+    if (Math.random() > 0.4) {
+      const say = dodgeSay[Math.floor(Math.random() * dodgeSay.length)];
+      showSpeech(say);
+      move();
+    }
+  }
+};
+
+document.getElementById('rst').onclick = startGame;
+
+/* ===== QUIZ ===== */
+const Q = [
+  { q: "Capital of Belarus?", a: ["Minsk", "Polotsk", "Brest"], c: 0 },
+  { q: "National animal?", a: ["Bear", "Bison (zubr)", "Wolf"], c: 1 },
+  { q: "Famous food?", a: ["Pelmeni", "Sushi", "Draniki"], c: 2 },
+  { q: "UNESCO forest?", a: ["Belovezhskaya Pushcha", "Amazon", "Taiga"], c: 0 },
+  { q: "Colors of the flag?", a: ["Blue &amp; yellow", "Red &amp; green", "Black &amp; white"], c: 1 }
+];
+const qz = document.getElementById('qz');
+const rz = document.getElementById('rz');
+let done = 0, ok = 0;
+Q.forEach((item, i) => {
+  const d = document.createElement('div');
+  d.className = 'q';
+  d.innerHTML = `<h4>${i + 1}. ${item.q}</h4>`;
+  item.a.forEach((opt, j) => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.innerHTML = opt;
+    b.onclick = () => {
+      if (d.dataset.a) return;
+      d.dataset.a = '1';
+      if (j === item.c) { b.classList.add('ok'); ok++; }
+      else {
+        b.classList.add('no');
+        d.querySelectorAll('.opt')[item.c].classList.add('ok');
+      }
+      done++;
+      if (done === Q.length) {
+        rz.classList.add('on');
+        rz.innerHTML = `Score: ${ok}/${Q.length}<br>` +
+          (ok === Q.length ? "Perfect! Not a boloto!" :
+           ok >= 3 ? "Not bad, tormoz!" :
+           "Oh no, real boloto!");
+      }
+    };
+    d.appendChild(b);
+  });
+  qz.appendChild(d);
+});
+
+startGame();
+</script>
+
+</body>
+</html>
